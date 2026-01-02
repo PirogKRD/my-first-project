@@ -23,13 +23,16 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 	// парсим строку
 	seperation := strings.Split(data, ",")
 	if len(seperation) != 3 {
-		return 0, "", 0, errors.New("неверное колличество элементов")
+		return 0, "", 0, errors.New("неверное количество элементов")
 	}
 
 	// преобразование шагов в int
 	steps, err := strconv.Atoi(seperation[0])
 	if err != nil {
 		return 0, "", 0, err
+	}
+	if steps <= 0 {
+		return 0, "", 0, errors.New("количество шагов должно быть больше 0")
 	}
 
 	// Вид активности
@@ -39,6 +42,9 @@ func parseTraining(data string) (int, string, time.Duration, error) {
 	duration, err := time.ParseDuration(seperation[2])
 	if err != nil {
 		return 0, "", 0, err
+	}
+	if duration <= 0 {
+		return 0, "", 0, errors.New("время должно быть больше 0")
 	}
 
 	return steps, activity, duration, nil
@@ -59,7 +65,7 @@ func distance(steps int, height float64) float64 {
 
 func meanSpeed(steps int, height float64, duration time.Duration) float64 {
 	// TODO: реализовать функцию
-	if duration == 0 {
+	if duration <= 0 {
 		return 0
 	}
 	distKm := distance(steps, height)
@@ -85,7 +91,7 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 		dist = distance(steps, height)
 		speed = meanSpeed(steps, height, duration)
 		calories, err = RunningSpentCalories(steps, weight, height, duration)
-	case "Хотьба":
+	case "Ходьба":
 		dist = distance(steps, height)
 		speed = meanSpeed(steps, height, duration)
 		calories, err = WalkingSpentCalories(steps, weight, height, duration)
@@ -94,7 +100,7 @@ func TrainingInfo(data string, weight, height float64) (string, error) {
 		return "", err
 	}
 
-	result := fmt.Sprintf("Тип тренеровки: %s\nДлительность: %.2f ч.\nДистанция: %.2f км.\nСкорость: %.2f км/ч\nСожгли калорий: %.2f", activity, duration.Hours(), dist, speed, calories)
+	result := fmt.Sprintf("Тип тренировки: %s\nДлительность: %.2f ч.\nДистанция: %.2f км.\nСкорость: %.2f км/ч\nСожгли калорий: %.2f\n", activity, duration.Hours(), dist, speed, calories)
 	return result, nil
 }
 
